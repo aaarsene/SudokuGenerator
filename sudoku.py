@@ -56,20 +56,24 @@ class Grille:
         else:
             return False
 
-    def affiche_grille(self):
+    def get_string(self):
+        result = ""
         for ligne in range(self.taille_grille):
             for colone in range(self.taille_grille):
-                print(self.grille[ligne][colone], end="")
+                result = result + "{}".format(self.grille[ligne][colone])
                 if colone in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
-                    print("│", end="")
-            print("")
+                   result = result + "|"
+            result = result + "\n"
             if ligne in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
                 for colone in range(self.taille_grille):
-                    print("─", end="")
+                    result = result + "-"
                     if colone in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
-                        print("┼", end="")
-                print()
-        print()
+                        result = result + "+"
+                result = result + "\n"
+        return result
+
+    def affiche_grille(self):
+        print(self.get_string())
 
     def placement_possible(self, chiffre, ligne, colone):
         if chiffre not in self.get_ligne(ligne) \

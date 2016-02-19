@@ -6,8 +6,6 @@ from random import *
 TAILLE_GRILLE = 9
 TAILLE_CARRE = int(sqrt(TAILLE_GRILLE))
 
-tried = grille = [[[] for x in range(TAILLE_GRILLE)] for x in range(TAILLE_GRILLE)]
-
 def get_colone(grille, index):
     coloneReturned = []
     for ligne in range(TAILLE_GRILLE):
@@ -58,45 +56,47 @@ def affiche_grille(grille):
             print("───┼───┼───")
     print()
 
-def remplir_grille(grille, history):
-    ligneDebut = 0
-    coloneDebut = 0
-    deleted = False
-    tailleHistorique = len(history)
-    if len(history) and history[-1] == "Deleted":
-        ligneDebut = history[-2][0]
-        coloneDebut = history[-2][1]
-        deleted = True
+def placement_possible(grille, chiffre, ligne, colone):
+    if chiffre not in get_ligne(grille, ligne) \
+        and chiffre not in get_colone(grille, colone) \
+        and not in_carre(get_carre(grille, ligne, colone), chiffre):
+        return True
+    else:
+        return False
 
-    for ligne in range(ligneDebut, TAILLE_GRILLE):
-        for colone in range(coloneDebut, TAILLE_GRILLE):
+def reinitialiser_depuis(grille, ligne, colone):
+    for l in range(TAILLE_GRILLE):
+        for c in range(TAILLE_GRILLE):
+            if l > ligne:
+                grille[l][c] = 0
+            elif l == ligne and c >= colone:
+                grille[l][c] = 0
+    return grille
+
+def remplir_grille(grille, history):
+    deleted = False
+    if len(history):
+        if grille[history[-1][0]][history[-1][1]] == 0:
+            deleted = True
+
+    for ligne in range(TAILLE_GRILLE):
+        for colone in range(TAILLE_GRILLE):
             case = grille[ligne][colone]
             if case == 0:
                 possibles = []
                 for chiffre in range(1,TAILLE_GRILLE+1):
-                    if chiffre not in get_ligne(grille, ligne) \
-                        and chiffre not in get_colone(grille, colone) \
-                        and not in_carre(get_carre(grille, ligne, colone), chiffre):
+                    if placement_possible(grille, chiffre, ligne, colone):
                         possibles.append(chiffre)
                 if deleted:
-                    if history[-2][2] not in tried[ligne][colone]:
-                        tried[ligne][colone].append(history[-2][2])
-                    for i in tried[ligne][colone]:
-                        try:
-                            possibles.remove(i)
-                        except:
-                            pass
-                    history.pop()
+                    possibles = history[-2][2]
+                    possibles.pop(0)
                     history.pop()
                     deleted = False
 
-                if len(possibles) > 1:
-                    shuffle(possibles)
+                shuffle(possibles)
+                if len(possibles):
                     grille[ligne][colone] = possibles[0]
-                    history.append((ligne, colone, grille[ligne][colone], True))
-                elif len(possibles) == 1:
-                    grille[ligne][colone] = possibles[0]
-                    history.append((ligne, colone, grille[ligne][colone], False))
+                    history.append((ligne, colone, possibles))
                 else:
                     return False
     return True
@@ -104,14 +104,13 @@ def remplir_grille(grille, history):
 def get_back(history, grille):
     lastItem = len(history)
     for index in range(len(history)):
-        if history[index][3] == True:
+        if len(history[index][2]) > 1:
             lastItem = index
 
-    for item in history[lastItem:]:
-        grille[item[0]][item[1]] = 0
+    grille = reinitialiser_depuis(grille, history[lastItem][0], history[lastItem][1])
+
     lastItem = lastItem + 1
     h = history[:lastItem]
-    h.append("Deleted")
     return h, grille
 
 grille = [[0 for x in range(TAILLE_GRILLE)] for x in range(TAILLE_GRILLE)]

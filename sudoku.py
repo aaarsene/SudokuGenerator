@@ -49,11 +49,15 @@ def affiche_grille(grille):
     for ligne in range(TAILLE_GRILLE):
         for colone in range(TAILLE_GRILLE):
             print(grille[ligne][colone], end="")
-            if colone in [2,5]:
+            if colone in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
                 print("│", end="")
         print("")
-        if ligne in [2,5]:
-            print("───┼───┼───")
+        if ligne in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
+            for colone in range(TAILLE_GRILLE):
+                print("─", end="")
+                if colone in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
+                    print("┼", end="")
+            print()
     print()
 
 def placement_possible(grille, chiffre, ligne, colone):

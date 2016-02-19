@@ -3,129 +3,136 @@
 from math import *
 from random import *
 
-TAILLE_GRILLE = 9
-TAILLE_CARRE = int(sqrt(TAILLE_GRILLE))
+class Grille:
+    def __init__(self, taille):
+        self.taille_grille = taille
+        self.taille_carre = int(sqrt(self.taille_grille))
+        self.grille = [[0 for x in range(self.taille_grille)] for x in range(self.taille_grille)]
+        self.history = []
+        self.generer_grille()
 
-def get_colone(grille, index):
-    coloneReturned = []
-    for ligne in range(TAILLE_GRILLE):
-        for colone in range(TAILLE_GRILLE):
-            if colone == index:
-                coloneReturned.append(grille[ligne][colone])
-    return coloneReturned
+    def get_colone(self, index):
+        coloneReturned = []
+        for ligne in range(self.taille_grille):
+            for colone in range(self.taille_grille):
+                if colone == index:
+                    coloneReturned.append(self.grille[ligne][colone])
+        return coloneReturned
 
-def get_ligne(grille, index):
-    return(grille[index])
+    def get_ligne(self, index):
+        return(self.grille[index])
 
-def get_carre(grille, l, c):
-    carre = [[0 for x in range(TAILLE_CARRE)] for x in range(TAILLE_CARRE)]
-    carreX = 0
-    carreY = 0
+    def get_carre(self, l, c):
+        carre = [[0 for x in range(self.taille_carre)] for x in range(self.taille_carre)]
+        carreX = 0
+        carreY = 0
 
-    for i in range(1,TAILLE_CARRE+1):
-        if l < i*TAILLE_CARRE:
-            carreY = i-1
-            break
+        for i in range(1,self.taille_carre+1):
+            if l < i*self.taille_carre:
+                carreY = i-1
+                break
 
-    for i in range(1,TAILLE_CARRE+1):
-        if c < i*TAILLE_CARRE:
-            carreX = i-1
-            break
+        for i in range(1,self.taille_carre+1):
+            if c < i*self.taille_carre:
+                carreX = i-1
+                break
 
-    for ligne in range(TAILLE_CARRE):
-        for colone in range(TAILLE_CARRE):
-            carre[ligne][colone] = grille[ligne+carreY*TAILLE_CARRE][colone+carreX*TAILLE_CARRE]
+        for ligne in range(self.taille_carre):
+            for colone in range(self.taille_carre):
+                carre[ligne][colone] = self.grille[ligne+carreY*self.taille_carre][colone+carreX*self.taille_carre]
 
-    return carre
+        return carre
 
-def in_carre(carre, valeur):
-    for ligne in carre:
-        for case in ligne:
-            if case == valeur:
-                return True
-    return False
-
-def affiche_grille(grille):
-    for ligne in range(TAILLE_GRILLE):
-        for colone in range(TAILLE_GRILLE):
-            print(grille[ligne][colone], end="")
-            if colone in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
-                print("│", end="")
-        print("")
-        if ligne in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
-            for colone in range(TAILLE_GRILLE):
-                print("─", end="")
-                if colone in range(TAILLE_CARRE-1,TAILLE_GRILLE-1,TAILLE_CARRE):
-                    print("┼", end="")
-            print()
-    print()
-
-def placement_possible(grille, chiffre, ligne, colone):
-    if chiffre not in get_ligne(grille, ligne) \
-        and chiffre not in get_colone(grille, colone) \
-        and not in_carre(get_carre(grille, ligne, colone), chiffre):
-        return True
-    else:
+    def in_carre(self, carre, valeur):
+        for ligne in carre:
+            for case in ligne:
+                if case == valeur:
+                    return True
         return False
 
-def reinitialiser_depuis(grille, ligne, colone):
-    for l in range(TAILLE_GRILLE):
-        for c in range(TAILLE_GRILLE):
-            if l > ligne:
-                grille[l][c] = 0
-            elif l == ligne and c >= colone:
-                grille[l][c] = 0
-    return grille
+    def zeros(self):
+        if self.in_carre(self.grille, 0):
+            return True
+        else:
+            return False
 
-def remplir_grille(grille, history):
-    deleted = False
-    if len(history):
-        if grille[history[-1][0]][history[-1][1]] == 0:
-            deleted = True
+    def affiche_grille(self):
+        for ligne in range(self.taille_grille):
+            for colone in range(self.taille_grille):
+                print(self.grille[ligne][colone], end="")
+                if colone in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
+                    print("│", end="")
+            print("")
+            if ligne in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
+                for colone in range(self.taille_grille):
+                    print("─", end="")
+                    if colone in range(self.taille_carre-1,self.taille_grille-1,self.taille_carre):
+                        print("┼", end="")
+                print()
+        print()
 
-    for ligne in range(TAILLE_GRILLE):
-        for colone in range(TAILLE_GRILLE):
-            case = grille[ligne][colone]
-            if case == 0:
-                possibles = []
-                for chiffre in range(1,TAILLE_GRILLE+1):
-                    if placement_possible(grille, chiffre, ligne, colone):
-                        possibles.append(chiffre)
-                if deleted:
-                    possibles = history[-2][2]
-                    possibles.pop(0)
-                    history.pop()
-                    deleted = False
+    def placement_possible(self, chiffre, ligne, colone):
+        if chiffre not in self.get_ligne(ligne) \
+            and chiffre not in self.get_colone(colone) \
+            and not self.in_carre(self.get_carre(ligne, colone), chiffre):
+            return True
+        else:
+            return False
 
-                shuffle(possibles)
-                if len(possibles):
-                    grille[ligne][colone] = possibles[0]
-                    history.append((ligne, colone, possibles))
-                else:
-                    return False
-    return True
+    def reinitialiser_depuis(self, ligne, colone):
+        for l in range(self.taille_grille):
+            for c in range(self.taille_grille):
+                if l > ligne:
+                    self.grille[l][c] = 0
+                elif l == ligne and c >= colone:
+                    self.grille[l][c] = 0
 
-def get_back(history, grille):
-    lastItem = len(history)
-    for index in range(len(history)):
-        if len(history[index][2]) > 1:
-            lastItem = index
+    def remplir_grille(self):
+        deleted = False
+        if len(self.history):
+            if self.grille[self.history[-1][0]][self.history[-1][1]] == 0:
+                deleted = True
 
-    grille = reinitialiser_depuis(grille, history[lastItem][0], history[lastItem][1])
+        for ligne in range(self.taille_grille):
+            for colone in range(self.taille_grille):
+                case = self.grille[ligne][colone]
+                if case == 0:
+                    possibles = []
+                    for chiffre in range(1,self.taille_grille+1):
+                        if self.placement_possible(chiffre, ligne, colone):
+                            possibles.append(chiffre)
+                    if deleted:
+                        possibles = self.history[-2][2]
+                        possibles.pop(0)
+                        self.history.pop()
+                        deleted = False
 
-    lastItem = lastItem + 1
-    h = history[:lastItem]
-    return h, grille
+                    shuffle(possibles)
+                    if len(possibles):
+                        self.grille[ligne][colone] = possibles[0]
+                        self.history.append((ligne, colone, possibles))
+                    else:
+                        return False
+        return True
 
-grille = [[0 for x in range(TAILLE_GRILLE)] for x in range(TAILLE_GRILLE)]
+    def get_back(self):
+        lastItem = len(self.history)
+        for index in range(len(self.history)):
+            if len(self.history[index][2]) > 1:
+                lastItem = index
 
-history = []
-done = False
+        self.reinitialiser_depuis(self.history[lastItem][0], self.history[lastItem][1])
 
-while in_carre(grille, 0) or not done:
-    done = remplir_grille(grille, history)
-    if not done:
-        history, grille = get_back(history, grille)
+        lastItem = lastItem + 1
+        self.history = self.history[:lastItem]
+
+    def generer_grille(self):
+        while self.zeros():
+            self.remplir_grille()
+            if self.zeros():
+                self.get_back()
 
 
-affiche_grille(grille)
+
+g = Grille(9)
+g.affiche_grille()

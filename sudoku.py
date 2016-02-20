@@ -137,6 +137,6 @@ class Grille:
                 self.get_back()
 
 
-
-g = Grille(9)
-g.affiche_grille()
+if __name__ == '__main__':
+    g = Grille(9)
+    g.affiche_grille()
